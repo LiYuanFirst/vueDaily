@@ -16,7 +16,7 @@ const apiServer = http.createServer((req,res) => {
        //设置编码类型，解析中文
        res.setHeader('Content-Type','text/plain;charset=UTF-8');
        //设置允许跨域
-       res.setHeader('Access-Control-Allow-Orign','*');
+       res.setHeader('Access-Control-Allow-Origin','*');
        //返回代理后内容
        res.end(body);
      }
@@ -37,9 +37,9 @@ const imgServer = http.createServer((req,res) => {
    function callback(error,response,body){
      if(!error && response.statusCode === 200){
        //设置编码类型，解析中文
-       res.setHeader('Content-Type',response.headers['Content-Type']);
+       res.setHeader('Content-Type',response.headers['content-type']);
        //设置允许跨域
-       res.setHeader('Access-Control-Allow-Orign','*');
+       res.setHeader('Access-Control-Allow-Origin','*');
        //返回代理后内容
        res.end(body);
      }
