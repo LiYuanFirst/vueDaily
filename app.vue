@@ -13,7 +13,7 @@
         </li>
       </ul>
     </div>
-    <div class="daily-list">
+    <div class="daily-list" ref="list" @scroll="handleScroll">
       <div v-if="type == 'recommend'">
         <div class="" v-for="list in recommendList">
           <div class="daily-date">
@@ -21,7 +21,8 @@
           </div>
           <Item v-for="item in list.stories"
                 :data="item"
-                :key="item.id">
+                :key="item.id"
+                @click.native = "handleClick(item.id)">
 
           </Item>
         </div>
@@ -30,21 +31,23 @@
       <div v-if="type == 'daily'">
         <Item v-for="item in list"
                 :data="item"
-                :key="item.id">
+                :key="item.id"
+                @click.native = "handleClick(item.id)">
 
         </Item>
       </div>
       <Loading v-show="isLoading"></Loading>
     </div>
-    <!-- <daily-article></daily-article> -->
+    <daily-article :id = "articleId"></daily-article>
   </div>
 </template>
 <script type="text/javascript">
   import $ from './libs/util';
   import Item from './components/item.vue';
   import Loading from './components/loading.vue'
+  import dailyArticle from './components/daily-article.vue'
   export default{
-    components: { Item,Loading },
+    components: { Item,Loading,dailyArticle },
     data(){
       return{
         type:'recommend',
@@ -54,11 +57,14 @@
         list:[],
         recommendList:[],
         dailyTime:$.getTodayTime(),
-        isLoading:false
-
+        isLoading:false,
+        articleId:0
       }
     },
     methods:{
+      handleClick(id){
+        this.articleId = id;
+      },
       //获取主题列表
       getThemes(){
         console.log(this.dailyTime);
@@ -89,15 +95,12 @@
       },
       //获取每日推荐列表
       getRecommendList (){
-        console.log(0);
         this.isLoading = true;
         const prevDay = $.prevDay(this.dailyTime + 86400000);
-        console.log(prevDay);
         $.ajax.get('news/before/'+ prevDay).then(res => {
           console.log(res);
           this.recommendList.push(res);
           this.isLoading = false;
-          console.log(this.recommendList);
         })
       },
       //将日期转化为中文
@@ -112,11 +115,24 @@
 
         }
         return `${month}月${day}日`;
+      },
+      handleScroll(){
+        const $list = this.$refs.list;
+
+          if(this.type === 'daily' || this.isLoading) return;
+          if($list.scrollTop  + document.body.clientHeight >= $list.scrollHeight-1){
+            console.log(0);
+            this.dailyTime -= 86400000;
+            this.getRecommendList();
+          }
+
       }
     },
     mounted(){
       this.getThemes();
       this.getRecommendList();
+
+
     }
   }
 </script>
